@@ -113,7 +113,7 @@ module Command =
             match c.Returns with
             | Return.None
             | Return.Single _ -> List.empty
-            | Return.Table(nts, _) ->
+            | Return.Table nts ->
                 nts |> List.map(fun nt -> Helpers.memberExpr nt.Name)
         let sp12 = String.init 12 (fun _ -> " ")
         let executeLines =
@@ -154,17 +154,13 @@ module Command =
                     yield sp12 + "reader.Read() |> ignore"
                     yield sp12 + "let result = " + readSingle
                     yield sp12 + "return result"
-                | Return.Table(nts, multi) ->
+                | Return.Table nts ->
                     let readSingleRow = Helpers.readSingleRow(nts, c.Name)
                     yield sp12 + "use! reader = command.ExecuteReaderAsync()"
-                    if multi then
-                        yield sp12 + $"let b = ImmutableArray.CreateBuilder<{c.Name}>()"
-                        yield sp12 + "while reader.Read() do"
-                        yield sp12 + $"    b.Add({readSingleRow})"
-                        yield sp12 + "return b.ToImmutable()"
-                    else
-                        yield sp12 + "reader.Read() |> ignore"
-                        yield sp12 + $"return {readSingleRow}"
+                    yield sp12 + $"let b = ImmutableArray.CreateBuilder<{c.Name}>()"
+                    yield sp12 + "while reader.Read() do"
+                    yield sp12 + $"    b.Add({readSingleRow})"
+                    yield sp12 + "return b.ToImmutable()"
                 yield "        }"
 
             ]

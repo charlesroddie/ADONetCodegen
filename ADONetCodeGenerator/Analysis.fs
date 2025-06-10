@@ -113,12 +113,12 @@ type UserDefinedTableT(schemaName: string, name: string, cols: NamedType list) =
 type Return =
     | None
     | Single of SqlType * isNullable: bool
-    | Table of NamedType list * multi: bool
+    | Table of NamedType list
     member t.NamedTypes =
         match t with
         | None -> List.empty
         | Single(sqlp, nullable) -> [ NamedType("Value", sqlp, nullable) ]
-        | Table(namedTypes, _) -> namedTypes
+        | Table(namedTypes) -> namedTypes
     member t.RequiresConstructor =
         match t with
         | None | Single _ -> false
@@ -147,9 +147,9 @@ type TypedUDF(schemaName: string, name: string, parameters: NamedType list, retu
             | UserDefinedFunctionType.Scalar ->
                 Return.Single(SqlType.FromSQL(udf.DataType), true)
             | UserDefinedFunctionType.Inline ->
-                Return.Table(returnTypes(), true)
+                Return.Table(returnTypes())
             | UserDefinedFunctionType.Table ->
-                Return.Table(returnTypes(), true)
+                Return.Table(returnTypes())
             | UserDefinedFunctionType.Unknown -> failwith("Unknown function type")
         let parameters =
             [
@@ -185,7 +185,7 @@ type TypedSqlCommand(name: string, command: string, parameters: NamedType list, 
         let returnCols = reader.GetColumnSchema() |> Seq.toList |> List.map NamedType.FromDbCol
         match returnCols with
         | [] -> Return.None
-        | _ -> Return.Table(returnCols, true)
+        | _ -> Return.Table(returnCols)
 
 type TypedStoredProcedure(schemaName: string, name: string, parameters: NamedType list, returns: Return) =
     member _.SchemaName = schemaName
@@ -229,7 +229,7 @@ type Command(name: string, qualifiedName: string, parameters: NamedType seq, ret
         Command(sp.Name, sp.SqlQualifiedName, sp.Parameters, sp.Returns, CommandTy.StoredProc)
     static member GetterFromTypedTable(tt: TypedTable) =
         let sqlQualifiedName = $"[{tt.SchemaName}].[{tt.Name}]"
-        Command(tt.Name, sqlQualifiedName, [], Return.Table(tt.Columns, true), CommandTy.TableGetter)
+        Command(tt.Name, sqlQualifiedName, [], Return.Table(tt.Columns), CommandTy.TableGetter)
 
 type DbInfo(udts: UserDefinedTableT list, udfs: TypedUDF list, tsps: TypedStoredProcedure list, tableGetters: TypedTable list) =
     member _.UserDefinedTableTypes = udts
