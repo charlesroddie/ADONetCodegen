@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <NoWarn>FS0104</NoWarn>
+    <WarnOn>FS3389; FS3395</WarnOn>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="GeneratedADONetCore.fs" />
+    <Compile Include="Analysis.fs" />
+    <Compile Include="Codegen.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="9.0.300"/>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2"/>
+    <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="172.76.0"/>
+  </ItemGroup>
+
+</Project>
